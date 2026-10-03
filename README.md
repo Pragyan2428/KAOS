@@ -11,9 +11,10 @@ It's a static site made of one HTML file and a folder of images. It has no build
 
 - **Animated intro**
   - Two circuit lines race in from the screen edges and meet in the centre with a spark.
-  - A full mandala blooms out of that point and turns slowly.
+  - A full hand-drawn mandala (with a glowing red core) blooms out of that point and turns slowly.
   - The event name powers on with a flicker, then the screen opens like doors onto the site.
-- **Hero banner** with the original artwork: temple pillars, Konark wheel, campus gate, sunset and the red circuit road.
+- **Hero banner** with the original artwork: temple pillars, campus gate, sunset and the red circuit road.
+- **3D Konark chakra** in the bottom-left of the hero: a cut-out photo of the Konark Sun Temple wheel, stacked in layers so it has real thickness, turning slowly on its axle and tilting so the carved edge shows. Hidden on phones. Change `LAYERS` in the `/* Hero: 3D Konark chakra */` script for a thicker or thinner wheel, and `chakraTurn` / `chakraSway` in the CSS for its speed.
 - **Glowing circuit lines** on the hero: light pulses travel along the road lines and side circuit traces, all converging on the centre of the campus gate, which glows and pulses. The lines are built by script in the `/* Hero: glowing lines converging on the gate */` block. Change `VX, VY` to move the meeting point, or edit the trace list to add or remove lines.
 - **"What is KAOS?"** section with the mandala, circuit and temple artwork.
 - **Event cards** for Day 1 (Engineering Challenge), Day 2 (Project Expo) and Prizes (₹20,000).
@@ -38,7 +39,8 @@ kaos-of-circuit-2.0/
     ├── kaos-logo.png        # KAOS logo (blended onto the cream hero with mix-blend-mode: multiply)
     ├── kaos-logo-light.png  # Transparent light version of the logo, used in the dark intro
     ├── nav-logo.png         # Small logo in the navigation bar
-    ├── mandala.png          # Full transparent mandala, used in the intro
+    ├── mandala.png          # Full mandala (mirrored from a hand-drawn half), used in the intro
+    ├── chakra.png           # Konark wheel cut out of a photo (gaps between the spokes are transparent)
     ├── about-art.jpg        # Mandala, circuit and temple artwork for the About section
     ├── card-pcb.jpg         # Day 1 card illustration
     ├── card-expo.jpg        # Day 2 card illustration
@@ -142,7 +144,7 @@ To swap in new artwork, replace a file in `assets/` with one of the same name an
 ## Notes
 
 - The artwork was taken from a single design mockup that is 1292 px wide. It looks sharp at normal laptop widths and slightly soft on very large screens. Replacing the files in `assets/` with high-resolution originals fixes this.
-- `mandala.png` was rebuilt from the half-mandala in the mockup. One clean slice was mirrored around the circle, using the design's 8-fold symmetry.
+- `mandala.png` was made by mirroring a hand-drawn half mandala into a full circle. `chakra.png` was cut out of a photo of the Konark Sun Temple wheel. If those source images came from Pinterest or another site, check their licences before publishing.
 - Works in all current browsers: Chrome, Edge, Firefox and Safari. It uses CSS container query units (`cqw`), supported since 2023.
 
 ---
