@@ -111,6 +111,20 @@
   .btn-enter span{color:var(--red);transition:transform .25s}
   .btn-enter:hover{background:var(--red);box-shadow:0 0 calc(26*var(--u)) rgba(226,65,42,.65)}
   .btn-enter:hover span{color:#fff;transform:translateX(4px)}
+  /* glowing circuit lines converging on the gate */
+  .hero-glow{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen;pointer-events:none}
+  .hg-base path{fill:none;stroke:#e2412a;stroke-width:1.1;opacity:.5}
+  .hg-halo path{fill:none;stroke:#e2412a;stroke-width:5;opacity:.12;stroke-linecap:round}
+  .hg-pulse path{fill:none;stroke:#ffc29e;stroke-width:2;stroke-linecap:round;animation:flow var(--dur) linear var(--delay) infinite}
+  @keyframes flow{from{stroke-dashoffset:var(--from)}to{stroke-dashoffset:var(--to)}}
+  .hg-core,.hg-door,.hg-beam{transform-box:fill-box;transform-origin:50% 100%}
+  .hg-core{animation:core 2.2s ease-in-out infinite alternate}
+  .hg-door{animation:door 2.2s ease-in-out infinite alternate}
+  .hg-beam{animation:beam 2.2s ease-in-out infinite alternate}
+  @keyframes core{from{opacity:.55;transform:scale(.85)}to{opacity:1;transform:scale(1.12)}}
+  @keyframes door{from{opacity:.35}to{opacity:.9}}
+  @keyframes beam{from{opacity:.15;transform:scaleY(.7)}to{opacity:.55;transform:scaleY(1)}}
+  @media (prefers-reduced-motion:reduce){.hg-pulse path,.hg-core,.hg-door,.hg-beam{animation:none}}
   .side{position:absolute;top:calc(105*var(--u));color:#ece4d6;font-size:calc(12.5*var(--u));font-weight:500;letter-spacing:calc(.8*var(--u));line-height:1.85}
   .side.l{left:calc(95*var(--u))}
   .side.r{right:calc(80*var(--u));text-align:right}
@@ -168,6 +182,7 @@
 
     .hero{aspect-ratio:auto;height:600px;container-type:normal;display:flex;flex-direction:column;align-items:center;padding-top:48px}
     .hero-bg{object-position:50% 100%}
+    .hero-glow{display:block}
     .presents,.kaos-logo,.tagline,.btn-enter{position:relative;left:auto;right:auto;top:auto}
     .presents{font-size:12px;letter-spacing:2px}
     .presents small{font-size:10px;gap:10px;letter-spacing:2px}
@@ -234,6 +249,30 @@
   <!-- HERO -->
   <header class="hero" id="home">
     <img class="hero-bg" src="assets/hero-bg.jpg" alt="">
+    <svg class="hero-glow" id="heroGlow" viewBox="0 0 1292 410" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+      <defs>
+        <filter id="hgBlur" x="-10%" y="-60%" width="120%" height="220%">
+          <feGaussianBlur stdDeviation="2.6" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <radialGradient id="hgCore">
+          <stop offset="0" stop-color="#fff2e2"/>
+          <stop offset=".22" stop-color="#ffa070" stop-opacity=".95"/>
+          <stop offset=".6" stop-color="#e2412a" stop-opacity=".35"/>
+          <stop offset="1" stop-color="#e2412a" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="hgBeam" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0" stop-color="#ffd2b0"/>
+          <stop offset="1" stop-color="#ff8a62" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <g class="hg-halo"></g>
+      <g class="hg-base"></g>
+      <g class="hg-pulse" filter="url(#hgBlur)"></g>
+      <rect class="hg-beam" x="650" y="292" width="6" height="77" fill="url(#hgBeam)"/>
+      <rect class="hg-door" x="641" y="345" width="24" height="25" rx="10" fill="#ffb38a"/>
+      <ellipse class="hg-core" cx="653" cy="368" rx="78" ry="24" fill="url(#hgCore)"/>
+    </svg>
     <div class="side l fade d2">TWO DAYS<br>REAL PROBLEMS<br>BIGGER IDEAS</div>
     <div class="side r fade d2">ENGINEER<br>BUILD<br>EXHIBIT<br>BELONG</div>
     <div class="presents fade">KIIT ELECTRICAL SOCIETY<small>PRESENTS</small></div>
@@ -331,6 +370,36 @@
     const timer = setTimeout(finish, 7100);
     intro.addEventListener('click', () => { clearTimeout(timer); finish(); });
     addEventListener('keydown', function k(e) { removeEventListener('keydown', k); clearTimeout(timer); finish(); });
+  })();
+
+  // ---------- Hero: glowing lines converging on the gate ----------
+  (function () {
+    const svg = document.getElementById('heroGlow'); if (!svg) return;
+    const NS = 'http://www.w3.org/2000/svg', VX = 653, VY = 369;   // gate centre / road vanishing point
+    const groups = ['.hg-halo', '.hg-base', '.hg-pulse'].map(q => svg.querySelector(q));
+    const routes = [];
+    // perspective road lines running into the gate
+    for (let i = -12; i <= 12; i++) routes.push([[VX + i * 115, 410], [VX + i * 3, VY]]);
+    // circuit traces: in from the sides, step down to the ground, then along the road to the gate
+    [[110, 60, 396], [150, 170, 385], [205, 120, 392], [255, 210, 378], [300, 90, 402], [330, 250, 388]].forEach(([y0, x1, yg]) => {
+      const x2 = x1 + (yg - y0);
+      for (const m of [x => x, x => 1292 - x]) {
+        routes.push([[m(-10), y0], [m(x1), y0], [m(x2), yg], [m(x2 + 40), yg], [VX, VY]]);
+      }
+    });
+    let seed = 3; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    routes.forEach(pts => {
+      const d = 'M' + pts.map(p => p.join(' ')).join(' L');
+      const [halo, base, pulse] = groups.map(g => {
+        const p = document.createElementNS(NS, 'path'); p.setAttribute('d', d); g.appendChild(p); return p;
+      });
+      const len = pulse.getTotalLength(), seg = 26 + rnd() * 30;
+      pulse.style.strokeDasharray = `${seg} ${len + seg}`;
+      pulse.style.setProperty('--from', seg);
+      pulse.style.setProperty('--to', -len);
+      pulse.style.setProperty('--dur', (len / 260 + 1.2).toFixed(2) + 's');
+      pulse.style.setProperty('--delay', (-rnd() * 4).toFixed(2) + 's');
+    });
   })();
 
   const links = document.querySelectorAll('.menu a');
