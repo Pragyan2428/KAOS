@@ -126,16 +126,26 @@
   @keyframes door{from{opacity:.35}to{opacity:.9}}
   @keyframes beam{from{opacity:.15;transform:scaleY(.7)}to{opacity:.55;transform:scaleY(1)}}
   @media (prefers-reduced-motion:reduce){.hg-pulse path,.hg-core,.hg-door,.hg-beam{animation:none}}
+  /* living background: mouse parallax (background moves less than the wheel = depth) */
+  .hero{--mx:0;--my:0}
+  .hero-bg,.hero-glow{scale:1.035;translate:calc(var(--mx) * -7px) calc(var(--my) * -4px);transition:translate 1.2s cubic-bezier(.2,.7,.2,1)}
+  .chakra{translate:calc(var(--mx) * 9px) calc(var(--my) * 5px);transition:translate 1.2s cubic-bezier(.2,.7,.2,1)}
+  .embers{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:screen}
+  .hg-sun{transform-box:fill-box;transform-origin:center;animation:sunBreath 6s ease-in-out infinite alternate}
+  @keyframes sunBreath{from{opacity:.55;transform:scale(.94)}to{opacity:1;transform:scale(1.06)}}
+  .hg-rays{transform-box:view-box;transform-origin:654px 346px;animation:rays 90s linear infinite}
+  @keyframes rays{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.hg-sun,.hg-rays{animation:none}.embers{display:none}}
   /* 3D Konark chakra (replaces the painted wheel, bottom-left) */
   .chakra{position:absolute;left:calc(63*var(--u));top:calc(211*var(--u));width:calc(204*var(--u));aspect-ratio:1;perspective:calc(650*var(--u));pointer-events:none}
   .chakra::before{content:"";position:absolute;inset:3%;border-radius:50%;background:radial-gradient(circle,#0c0807 0 60%,rgba(12,8,7,.88) 68%,rgba(12,8,7,0) 75%)}
   .chakra::after{content:"";position:absolute;inset:10%;border-radius:50%;box-shadow:0 0 calc(40*var(--u)) calc(6*var(--u)) rgba(226,65,42,.28);animation:chakraGlow 4.4s ease-in-out infinite alternate}
   .chakra-tilt,.chakra-spin{position:absolute;inset:0;transform-style:preserve-3d}
-  .chakra-tilt{animation:chakraSway 9s ease-in-out infinite alternate}
-  .chakra-spin{animation:chakraTurn 28s linear infinite}
+  .chakra-tilt{animation:chakraSway 14s ease-in-out infinite alternate}
+  .chakra-spin{animation:chakraTurn 45s linear infinite}
   .chakra img{position:absolute;inset:0;width:100%;height:100%;backface-visibility:visible}
   .chakra img.face{filter:drop-shadow(0 0 calc(5*var(--u)) rgba(255,120,80,.35))}
-  @keyframes chakraSway{from{transform:rotateY(-24deg) rotateX(8deg)}to{transform:rotateY(24deg) rotateX(-6deg)}}
+  @keyframes chakraSway{from{transform:rotateY(-11deg) rotateX(4deg)}to{transform:rotateY(11deg) rotateX(-3deg)}}
   @keyframes chakraTurn{to{transform:rotate(360deg)}}
   @keyframes chakraGlow{from{opacity:.4}to{opacity:1}}
   @media (prefers-reduced-motion:reduce){.chakra-tilt,.chakra-spin,.chakra::after{animation:none}}
@@ -276,11 +286,23 @@
           <stop offset=".6" stop-color="#e2412a" stop-opacity=".35"/>
           <stop offset="1" stop-color="#e2412a" stop-opacity="0"/>
         </radialGradient>
+        <radialGradient id="hgSun">
+          <stop offset=".45" stop-color="#ff9a6a" stop-opacity=".55"/>
+          <stop offset=".62" stop-color="#ff7a4f" stop-opacity=".22"/>
+          <stop offset="1" stop-color="#e2412a" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="hgRay" cx="654" cy="346" r="520" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#ffb48a" stop-opacity=".28"/>
+          <stop offset="1" stop-color="#ffb48a" stop-opacity="0"/>
+        </radialGradient>
+        <clipPath id="hgSky"><rect x="0" y="0" width="1292" height="362"/></clipPath>
         <linearGradient id="hgBeam" x1="0" y1="1" x2="0" y2="0">
           <stop offset="0" stop-color="#ffd2b0"/>
           <stop offset="1" stop-color="#ff8a62" stop-opacity="0"/>
         </linearGradient>
       </defs>
+      <g clip-path="url(#hgSky)"><g class="hg-rays" id="hgRays" fill="url(#hgRay)"></g></g>
+      <circle class="hg-sun" cx="654" cy="346" r="120" fill="url(#hgSun)"/>
       <g class="hg-halo"></g>
       <g class="hg-base"></g>
       <g class="hg-pulse" filter="url(#hgBlur)"></g>
@@ -288,6 +310,7 @@
       <rect class="hg-door" x="641" y="345" width="24" height="25" rx="10" fill="#ffb38a"/>
       <ellipse class="hg-core" cx="653" cy="368" rx="78" ry="24" fill="url(#hgCore)"/>
     </svg>
+    <canvas class="embers" id="embers" aria-hidden="true"></canvas>
     <div class="chakra" aria-hidden="true"><div class="chakra-tilt"><div class="chakra-spin" id="chakraSpin"></div></div></div>
     <div class="side l fade d2">TWO DAYS<br>REAL PROBLEMS<br>BIGGER IDEAS</div>
     <div class="side r fade d2">ENGINEER<br>BUILD<br>EXHIBIT<br>BELONG</div>
@@ -416,6 +439,58 @@
       pulse.style.setProperty('--dur', (len / 130 + 1.2).toFixed(2) + 's');
       pulse.style.setProperty('--delay', (-rnd() * 8).toFixed(2) + 's');
     });
+  })();
+
+  // ---------- Hero: living background ----------
+  (function () {
+    const hero = document.querySelector('.hero');
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // light rays fanning out from the sun
+    const rays = document.getElementById('hgRays'), NS = 'http://www.w3.org/2000/svg';
+    for (let i = 0; i < 18; i++) {
+      const a = i / 18 * Math.PI * 2, w = .045 + (i % 3) * .02, L = 760;
+      const p = document.createElementNS(NS, 'path');
+      p.setAttribute('d', `M654 346 L${654 + Math.cos(a - w) * L} ${346 + Math.sin(a - w) * L} L${654 + Math.cos(a + w) * L} ${346 + Math.sin(a + w) * L}Z`);
+      rays.appendChild(p);
+    }
+    if (still) return;
+
+    // mouse parallax
+    hero.addEventListener('pointermove', e => {
+      const r = hero.getBoundingClientRect();
+      hero.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 2 - 1).toFixed(3));
+      hero.style.setProperty('--my', ((e.clientY - r.top) / r.height * 2 - 1).toFixed(3));
+    });
+    hero.addEventListener('pointerleave', () => { hero.style.setProperty('--mx', 0); hero.style.setProperty('--my', 0); });
+
+    // embers drifting up from the road
+    const cv = document.getElementById('embers'), ctx = cv.getContext('2d');
+    let W, H, dpr, running = true;
+    const size = () => { dpr = Math.min(devicePixelRatio || 1, 2); W = cv.width = hero.clientWidth * dpr; H = cv.height = hero.clientHeight * dpr; };
+    size(); addEventListener('resize', size);
+    const spawn = (anyY) => ({
+      x: Math.random() * W, y: anyY ? Math.random() * H : H * (.82 + Math.random() * .2),
+      r: (.6 + Math.random() * 1.6) * dpr, vy: (.12 + Math.random() * .35) * dpr, sway: Math.random() * 6.28,
+      life: 0, max: 380 + Math.random() * 520, hue: 14 + Math.random() * 22
+    });
+    const P = Array.from({ length: 46 }, () => spawn(true));
+    (function tick() {
+      if (running) {
+        ctx.clearRect(0, 0, W, H);
+        for (const p of P) {
+          p.life++; p.y -= p.vy; p.sway += .012; p.x += Math.sin(p.sway) * .25 * dpr;
+          const t = p.life / p.max, a = Math.sin(Math.min(t, 1) * Math.PI) * (.55 + .45 * Math.sin(p.life * .09));
+          if (t >= 1 || p.y < -10) Object.assign(p, spawn(false));
+          const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 3);
+          g.addColorStop(0, `hsla(${p.hue},100%,70%,${a})`); g.addColorStop(1, `hsla(${p.hue},100%,55%,0)`);
+          ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 3, 0, 6.283); ctx.fill();
+        }
+      }
+      requestAnimationFrame(tick);
+    })();
+    // pause when the hero is off screen
+    new IntersectionObserver(([en]) => { running = en.isIntersecting; }).observe(hero);
   })();
 
   // ---------- Hero: 3D Konark chakra ----------

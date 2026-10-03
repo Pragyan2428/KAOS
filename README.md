@@ -14,7 +14,12 @@ It's a static site made of one HTML file and a folder of images. It has no build
   - A full hand-drawn mandala (with a glowing red core) blooms out of that point and turns slowly.
   - The event name powers on with a flicker, then the screen opens like doors onto the site.
 - **Hero banner** with the original artwork: temple pillars, campus gate, sunset and the red circuit road.
-- **3D Konark chakra** in the bottom-left of the hero: a cut-out photo of the Konark Sun Temple wheel, stacked in layers so it has real thickness, turning slowly on its axle and tilting so the carved edge shows. Hidden on phones. Change `LAYERS` in the `/* Hero: 3D Konark chakra */` script for a thicker or thinner wheel, and `chakraTurn` / `chakraSway` in the CSS for its speed.
+- **Living background** on the hero, so the scene never feels static:
+  - gentle **mouse parallax**: the background drifts one way and the wheel the other, giving depth;
+  - glowing **embers** drifting up from the road (a `<canvas>`; it pauses when the hero is scrolled out of view);
+  - the **sun breathes** with a soft halo, and faint **light rays** turn slowly behind it.
+  All of it switches off for visitors with *Reduce motion* turned on. Change the number of embers in `Array.from({ length: 46 }, …)`.
+- **3D Konark chakra** in the bottom-left of the hero, recoloured in the illustration's own palette so it blends into the painting: a cut-out photo of the Konark Sun Temple wheel, stacked in layers so it has real thickness, turning slowly on its axle and tilting so the carved edge shows. Hidden on phones. Change `LAYERS` in the `/* Hero: 3D Konark chakra */` script for a thicker or thinner wheel, and `chakraTurn` (45 s per turn) / `chakraSway` (14 s tilt) in the CSS for its speed.
 - **Glowing circuit lines** on the hero: light pulses travel along the road lines and side circuit traces, all converging on the centre of the campus gate, which glows and pulses. The lines are built by script in the `/* Hero: glowing lines converging on the gate */` block. Change `VX, VY` to move the meeting point, or edit the trace list to add or remove lines.
 - **"What is KAOS?"** section with the mandala, circuit and temple artwork.
 - **Event cards** for Day 1 (Engineering Challenge), Day 2 (Project Expo) and Prizes (₹20,000).
