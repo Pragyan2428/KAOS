@@ -15,11 +15,11 @@ It's a static site made of one HTML file and a folder of images. It has no build
   - The event name powers on with a flicker, then the screen opens like doors onto the site.
 - **Hero banner** with the original artwork: temple pillars, campus gate, sunset and the red circuit road.
 - **Living background** on the hero, so the scene never feels static:
-  - gentle **mouse parallax**: the background drifts one way and the wheel the other, giving depth;
+  - gentle **mouse parallax**: the banner drifts slightly as the mouse moves;
   - glowing **embers** drifting up from the road (a `<canvas>`; it pauses when the hero is scrolled out of view);
   - the **sun breathes** with a soft halo, and faint **light rays** turn slowly behind it.
   All of it switches off for visitors with *Reduce motion* turned on. Change the number of embers in `Array.from({ length: 46 }, …)`.
-- **3D Konark chakra** in the bottom-left of the hero, recoloured in the illustration's own palette so it blends into the painting: a cut-out photo of the Konark Sun Temple wheel, stacked in layers so it has real thickness, turning slowly on its axle and tilting so the carved edge shows. Hidden on phones. Change `LAYERS` in the `/* Hero: 3D Konark chakra */` script for a thicker or thinner wheel, and `chakraTurn` (45 s per turn) / `chakraSway` (14 s tilt) in the CSS for its speed.
+- **Glowing Konark wheel**: the wheel painted into the banner lights up: two comets of light chase around its rim and pulses run out along the spokes from a glowing hub (`#hgWheel` in the hero SVG).
 - **Glowing circuit lines** on the hero: light pulses travel along the road lines and side circuit traces, all converging on the centre of the campus gate, which glows and pulses. The lines are built by script in the `/* Hero: glowing lines converging on the gate */` block. Change `VX, VY` to move the meeting point, or edit the trace list to add or remove lines.
 - **"What is KAOS?"** section with the mandala, circuit and temple artwork.
 - **Event cards** for Day 1 (Engineering Challenge), Day 2 (Project Expo) and Prizes (₹20,000).
@@ -37,15 +37,23 @@ It's a static site made of one HTML file and a folder of images. It has no build
 
 ```
 kaos-of-circuit-2.0/
-├── index.html               # The whole site: markup, styles (in <style>) and scripts (in <script>)
+├── index.html               # The website: markup, styles (in <style>) and scripts (in <script>)
+├── login.html               # Organiser login
+├── admin.html               # Admin panel
+├── super-admin.html         # Super Admin panel
 ├── README.md
+├── css/
+│   └── panel.css            # Styles for the login and admin pages
+├── js/
+│   ├── store.js             # Demo data (registrations, accounts, settings, log) + demo accounts
+│   ├── auth.js              # Demo sign-in, sessions and role checks
+│   └── panel.js             # Everything inside the admin / super admin panels
 └── assets/
     ├── hero-bg.jpg          # Hero artwork, with the text removed so live HTML text sits on top
     ├── kaos-logo.png        # KAOS logo (blended onto the cream hero with mix-blend-mode: multiply)
     ├── kaos-logo-light.png  # Transparent light version of the logo, used in the dark intro
     ├── nav-logo.png         # Small logo in the navigation bar
     ├── mandala.png          # Full mandala (mirrored from a hand-drawn half), used in the intro
-    ├── chakra.png           # Konark wheel cut out of a photo (gaps between the spokes are transparent)
     ├── about-art.jpg        # Mandala, circuit and temple artwork for the About section
     ├── card-pcb.jpg         # Day 1 card illustration
     ├── card-expo.jpg        # Day 2 card illustration
@@ -146,10 +154,51 @@ To swap in new artwork, replace a file in `assets/` with one of the same name an
 
 ---
 
+## Organiser pages: login, Admin and Super Admin
+
+> ⚠️ **These pages are a front-end demo.** GitHub Pages only serves static files, so there is no server:
+> passwords are checked in the browser and all data is saved in that browser's `localStorage`.
+> Anyone who reads the source can get in, and data isn't shared between devices.
+> **Don't put real participant data in it** until a backend is connected (see below).
+
+Open `login.html`, or use the **Organiser login** link in the website's footer.
+
+### Demo accounts
+Listed at the top of [`js/store.js`](js/store.js): one Super Admin and two Admins. The login page also has buttons that fill them in.
+Change or remove them before going live.
+
+### What each role can do
+
+| | Admin (`admin.html`) | Super Admin (`super-admin.html`) |
+|---|:---:|:---:|
+| Dashboard: totals, registrations-per-day chart, by-event breakdown, recent activity | ✅ | ✅ |
+| Registrations: search, filter, verify / reject, view details, export CSV | ✅ | ✅ |
+| Delete a registration | — | ✅ |
+| Announcements: publish, delete own | ✅ | ✅ (delete any) |
+| Admin accounts: add, change role, disable / enable, reset password, delete | — | ✅ |
+| Event settings: open/close registrations, prize pool, dates, venue, contact | — | ✅ |
+| Activity log: every sign-in and change, filterable by person | — | ✅ |
+| Reset demo data | — | ✅ |
+
+- Admins who try to open `super-admin.html` are sent back to the login page with an explanation.
+- There must always be at least one active Super Admin, and you can't delete or disable your own account.
+- **Settings reach the website:** the prize amount on the Prizes card and the *Register Now* button
+  (which becomes *Registrations Closed*) follow the Super Admin's settings.
+
+### Making it real
+Only `js/store.js` and `js/auth.js` touch data and sign-in; the pages talk to `KAOS.store` and `KAOS.auth` only.
+To go live, replace those two files with a real backend, for example:
+- **Firebase**: Firebase Authentication for sign-in, Firestore for data, and custom claims (`role: 'admin' | 'superadmin'`) enforced in Firestore security rules.
+- **Supabase**: Supabase Auth plus Postgres tables with Row Level Security policies per role.
+
+Role checks **must** be enforced on the server or database side; the checks in the browser are only for showing the right screens.
+
+---
+
 ## Notes
 
 - The artwork was taken from a single design mockup that is 1292 px wide. It looks sharp at normal laptop widths and slightly soft on very large screens. Replacing the files in `assets/` with high-resolution originals fixes this.
-- `mandala.png` was made by mirroring a hand-drawn half mandala into a full circle. `chakra.png` was cut out of a photo of the Konark Sun Temple wheel. If those source images came from Pinterest or another site, check their licences before publishing.
+- `mandala.png` was made by mirroring a hand-drawn half mandala into a full circle. If that source image came from Pinterest or another site, check their licences before publishing.
 - Works in all current browsers: Chrome, Edge, Firefox and Safari. It uses CSS container query units (`cqw`), supported since 2023.
 
 ---

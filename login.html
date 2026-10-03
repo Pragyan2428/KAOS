@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login · KAOS of Circuit 2.0</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/panel.css">
+</head>
+<body class="login-page">
+  <main class="login-card">
+    <img class="login-logo" src="assets/nav-logo.png" alt="KAOS of Circuit 2.0">
+    <h1>ADMIN LOGIN</h1>
+    <p class="sub">KIIT Electrical Society · Organiser access</p>
+
+    <form class="login-form" id="loginForm" novalidate>
+      <div class="alert error" id="err" role="alert"></div>
+      <div class="alert info" id="info"></div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input class="input" id="email" type="email" autocomplete="username" placeholder="you@kiit.ac.in" required>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="pw-wrap">
+          <input class="input" id="password" type="password" autocomplete="current-password" placeholder="••••••••" required>
+          <button class="pw-toggle" type="button" id="pwToggle" aria-label="Show password">SHOW</button>
+        </div>
+      </div>
+      <div class="row-between">
+        <label class="check"><input type="checkbox" id="remember"> Keep me signed in</label>
+      </div>
+      <button class="btn primary" type="submit">SIGN IN &rarr;</button>
+    </form>
+
+    <div class="demo-box">
+      <p>Demo mode: accounts are listed in <code>js/store.js</code> and the README. Fill one in:</p>
+      <div class="btns">
+        <button class="btn sm ghost" type="button" data-demo="superadmin">Super Admin</button>
+        <button class="btn sm ghost" type="button" data-demo="admin">Admin</button>
+      </div>
+    </div>
+
+    <a class="back-link" href="index.html">&larr; Back to the website</a>
+  </main>
+
+<script src="js/store.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const params = new URLSearchParams(location.search);
+  // only ever redirect to our own panel pages (never to an outside URL)
+  const next = ['admin.html', 'super-admin.html'].includes(params.get('next')) ? params.get('next') : null;
+  const show = (el, msg) => { el.textContent = msg; el.classList.toggle('show', !!msg); };
+
+  // already signed in? go straight to the right panel
+  const me = KAOS.auth.current();
+  if (me && !params.get('denied')) location.replace(next && me.role === 'superadmin' ? next : KAOS.auth.homeFor(me.role));
+  if (params.get('denied')) show($('info'), 'Your account does not have access to that page. Sign in with a Super Admin account.');
+
+  $('pwToggle').addEventListener('click', () => {
+    const pw = $('password'), hidden = pw.type === 'password';
+    pw.type = hidden ? 'text' : 'password';
+    $('pwToggle').textContent = hidden ? 'HIDE' : 'SHOW';
+    $('pwToggle').setAttribute('aria-label', hidden ? 'Hide password' : 'Show password');
+  });
+
+  document.querySelectorAll('[data-demo]').forEach(b => b.addEventListener('click', () => {
+    const u = KAOS.store.get().users.find(x => x.demo && x.role === b.dataset.demo && x.active);
+    if (!u) return show($('err'), 'That demo account was removed or disabled by the Super Admin.');
+    $('email').value = u.email; $('password').value = u.password; show($('err'), '');
+  }));
+
+  $('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!$('email').value || !$('password').value) return show($('err'), 'Enter your email and password.');
+    const res = KAOS.auth.login($('email').value, $('password').value, $('remember').checked);
+    if (!res.ok) return show($('err'), res.error);
+    const allowed = next && (res.user.role === 'superadmin' || next === 'admin.html');
+    location.href = allowed ? next : KAOS.auth.homeFor(res.user.role);
+  });
+</script>
+</body>
+</html>
