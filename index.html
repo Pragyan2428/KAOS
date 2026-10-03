@@ -95,6 +95,41 @@
   .btn-reg.closed{border-color:#5a4a42;color:#a8998a;pointer-events:none}
   .btn-reg:hover{background:var(--red);color:#fff;box-shadow:0 0 18px rgba(226,65,42,.5)}
   .burger{display:none;background:none;border:0;color:var(--cream);font-size:26px;cursor:pointer}
+  .nav-actions{display:flex;align-items:center;gap:12px}
+  .btn-login{display:inline-flex;align-items:center;gap:8px;color:#ece4d6;font-size:12px;font-weight:600;letter-spacing:1.2px;padding:11px 16px;border-radius:3px;border:1.5px solid #3a2e28;background:none;cursor:pointer;transition:.25s;font-family:inherit}
+  .btn-login svg{width:14px;height:14px}
+  .btn-login:hover{border-color:var(--red);color:#fff}
+  .m-only{display:none}
+
+  /* ============ LOGIN MODAL ============ */
+  .lm{position:fixed;inset:0;z-index:900;display:none;place-items:center;padding:16px;background:rgba(5,4,4,.72);backdrop-filter:blur(5px)}
+  .lm.open{display:grid;animation:lmFade .25s ease}
+  @keyframes lmFade{from{opacity:0}to{opacity:1}}
+  .lm-card{position:relative;width:100%;max-width:400px;background:#151110;border:1px solid #2e2420;border-radius:12px;padding:32px 28px 24px;color:#efe4d0;box-shadow:0 30px 70px rgba(0,0,0,.6);animation:lmRise .35s cubic-bezier(.2,.8,.2,1)}
+  @keyframes lmRise{from{transform:translateY(14px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+  .lm-card::before{content:"";position:absolute;left:28px;right:28px;top:0;height:2px;background:linear-gradient(90deg,transparent,var(--red),transparent)}
+  .lm-close{position:absolute;right:12px;top:10px;background:none;border:0;color:#a8998a;font-size:22px;line-height:1;cursor:pointer;padding:6px}
+  .lm-close:hover{color:#fff}
+  .lm-logo{display:block;height:46px;margin:0 auto 14px;mix-blend-mode:lighten}
+  .lm h2{text-align:center;font-size:18px;font-weight:700;letter-spacing:1.5px}
+  .lm .lm-sub{text-align:center;color:#a8998a;font-size:12px;margin-top:3px}
+  .lm form{display:flex;flex-direction:column;gap:14px;margin-top:22px}
+  .lm label{display:flex;flex-direction:column;gap:6px;font-size:11px;font-weight:600;letter-spacing:.8px;color:#a8998a}
+  .lm input[type=email],.lm input[type=password],.lm input[type=text]{background:#0b0908;border:1px solid #2e2420;border-radius:6px;padding:10px 12px;color:#efe4d0;font:inherit;font-size:14px;letter-spacing:0;transition:border-color .2s}
+  .lm input:focus{outline:none;border-color:var(--red)}
+  .lm .lm-pw{position:relative}
+  .lm .lm-pw input{width:100%;padding-right:60px}
+  .lm .lm-eye{position:absolute;right:8px;top:50%;translate:0 -50%;background:none;border:0;color:#a8998a;font:600 11px 'Montserrat',sans-serif;cursor:pointer;padding:4px}
+  .lm .lm-remember{flex-direction:row;align-items:center;gap:8px;font-size:12px;letter-spacing:0;font-weight:500;cursor:pointer}
+  .lm .lm-remember input{accent-color:var(--red);width:15px;height:15px}
+  .lm .lm-submit{background:var(--red);border:0;color:#fff;font:700 12.5px 'Montserrat',sans-serif;letter-spacing:1.2px;padding:12px;border-radius:6px;cursor:pointer;transition:.2s}
+  .lm .lm-submit:hover{background:#f04f37;box-shadow:0 0 18px rgba(226,65,42,.45)}
+  .lm .lm-err{display:none;background:rgba(226,65,42,.12);border:1px solid rgba(226,65,42,.4);color:#ffb3a3;border-radius:6px;padding:9px 12px;font-size:12.5px}
+  .lm .lm-err.show{display:block}
+  .lm .lm-demo{margin-top:18px;border:1px dashed #2e2420;border-radius:8px;padding:10px 12px;font-size:11.5px;color:#6f6258}
+  .lm .lm-demo div{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .lm .lm-demo button{background:none;border:1px solid #2e2420;color:#efe4d0;font:600 11.5px 'Montserrat',sans-serif;padding:5px 10px;border-radius:5px;cursor:pointer}
+  .lm .lm-demo button:hover{border-color:#6f6258}
 
   /* ============ HERO ============ */
   /* --u = one pixel of the original 1292px-wide design */
@@ -200,6 +235,8 @@
     .menu li a{display:block;padding:12px 0;border-bottom:1px solid #1f1a17}
     .burger{display:block}
     .btn-reg{display:none}
+    .btn-login{display:none}
+    .m-only{display:list-item}
 
     .hero{aspect-ratio:auto;height:600px;container-type:normal;display:flex;flex-direction:column;align-items:center;padding-top:48px}
     .hero-bg{object-position:50% 100%}
@@ -262,8 +299,12 @@
       <li><a href="#prizes">PRIZES</a></li>
       <li><a href="#rules">RULES</a></li>
       <li><a href="#faq">FAQ</a></li>
+      <li class="m-only"><a href="login.html" class="js-login">LOGIN</a></li>
     </ul>
-    <a href="#register" class="btn-reg" id="registerBtn">REGISTER NOW &rarr;</a>
+    <div class="nav-actions">
+      <a href="login.html" class="btn-login js-login" id="loginBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>LOGIN</span></a>
+      <a href="#register" class="btn-reg" id="registerBtn">REGISTER NOW &rarr;</a>
+    </div>
     <button class="burger" aria-label="Open menu" onclick="document.getElementById('menu').classList.toggle('open')">&#9776;</button>
   </nav>
 
@@ -359,10 +400,67 @@
     </article>
   </section>
 
+  <!-- LOGIN (opens over the homepage) -->
+  <div class="lm" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="lmTitle">
+    <div class="lm-card">
+      <button class="lm-close" type="button" aria-label="Close">&times;</button>
+      <img class="lm-logo" src="assets/nav-logo.png" alt="">
+      <h2 id="lmTitle">ORGANISER LOGIN</h2>
+      <p class="lm-sub">Admins and Super Admins of KAOS of Circuit 2.0</p>
+      <form id="lmForm" novalidate>
+        <div class="lm-err" id="lmErr" role="alert"></div>
+        <label>EMAIL<input type="email" id="lmEmail" autocomplete="username" placeholder="you@kiit.ac.in" required></label>
+        <label>PASSWORD<span class="lm-pw"><input type="password" id="lmPw" autocomplete="current-password" placeholder="••••••••" required><button class="lm-eye" type="button" id="lmEye">SHOW</button></span></label>
+        <label class="lm-remember"><input type="checkbox" id="lmRemember"> Keep me signed in</label>
+        <button class="lm-submit" type="submit">SIGN IN &rarr;</button>
+      </form>
+      <div class="lm-demo">Demo mode: fill in a demo account
+        <div><button type="button" data-demo="superadmin">Super Admin</button><button type="button" data-demo="admin">Admin</button></div>
+      </div>
+    </div>
+  </div>
+
   <footer>&copy; 2026 KIIT Electrical Society &middot; KAOS of Circuit 2.0 &middot; <a href="login.html" style="color:#b9ab99">Organiser login</a></footer>
 </div>
 
 <script src="js/store.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  // ---------- Login on the homepage ----------
+  (function () {
+    if (!window.KAOS || !KAOS.auth) return;           // js/ folder missing -> links still go to login.html
+    const modal = document.getElementById('loginModal'), $ = (id) => document.getElementById(id);
+    const me = KAOS.auth.current();
+    if (me) {                                         // already signed in: the button becomes a shortcut
+      document.querySelectorAll('.js-login').forEach(a => {
+        a.href = KAOS.auth.homeFor(me.role); a.classList.remove('js-login');
+        (a.querySelector('span') || a).textContent = 'DASHBOARD';
+      });
+      return;
+    }
+    let lastFocus;
+    const open = (e) => { e.preventDefault(); lastFocus = document.activeElement; document.getElementById('menu').classList.remove('open'); modal.classList.add('open'); setTimeout(() => $('lmEmail').focus(), 50); };
+    const close = () => { modal.classList.remove('open'); $('lmErr').classList.remove('show'); lastFocus && lastFocus.focus(); };
+    const err = (m) => { $('lmErr').textContent = m; $('lmErr').classList.add('show'); };
+    document.querySelectorAll('.js-login').forEach(a => a.addEventListener('click', open));
+    modal.querySelector('.lm-close').addEventListener('click', close);
+    modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+    addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('open')) close(); });
+    $('lmEye').addEventListener('click', () => { const h = $('lmPw').type === 'password'; $('lmPw').type = h ? 'text' : 'password'; $('lmEye').textContent = h ? 'HIDE' : 'SHOW'; });
+    modal.querySelectorAll('[data-demo]').forEach(b => b.addEventListener('click', () => {
+      const u = KAOS.store.get().users.find(x => x.demo && x.active && x.role === b.dataset.demo);
+      if (!u) return err('That demo account was removed or disabled by the Super Admin.');
+      $('lmEmail').value = u.email; $('lmPw').value = u.password; $('lmErr').classList.remove('show');
+    }));
+    $('lmForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!$('lmEmail').value || !$('lmPw').value) return err('Enter your email and password.');
+      const res = KAOS.auth.login($('lmEmail').value, $('lmPw').value, $('lmRemember').checked);
+      if (!res.ok) return err(res.error);
+      location.href = KAOS.auth.homeFor(res.user.role);
+    });
+  })();
+</script>
 <script>
   // ---------- Settings managed from the Super Admin panel ----------
   (function () {

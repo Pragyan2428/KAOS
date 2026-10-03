@@ -161,7 +161,7 @@ To swap in new artwork, replace a file in `assets/` with one of the same name an
 > Anyone who reads the source can get in, and data isn't shared between devices.
 > **Don't put real participant data in it** until a backend is connected (see below).
 
-Open `login.html`, or use the **Organiser login** link in the website's footer.
+Click **LOGIN** in the website's top menu (on phones it's inside the ☰ menu). A sign-in window opens right on the homepage, and after signing in you go straight to your panel. Once you're signed in, the button reads **DASHBOARD** and takes you back to your panel. The standalone `login.html` page and the footer's **Organiser login** link still work too.
 
 ### Demo accounts
 Listed at the top of [`js/store.js`](js/store.js): one Super Admin and two Admins. The login page also has buttons that fill them in.
